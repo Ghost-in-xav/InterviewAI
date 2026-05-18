@@ -43,7 +43,9 @@ class Transcriber:
             ],
         )
 
-    def transcribe_bytes(self, audio_bytes: bytes, suffix: str = ".webm") -> Transcription:
+    def transcribe_bytes(
+        self, audio_bytes: bytes, suffix: str = ".webm"
+    ) -> Transcription:
         with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_path = tmp.name
@@ -65,8 +67,10 @@ if __name__ == "__main__":
 
     t = Transcriber()
     out = t.transcribe_file(sys.argv[1])
-    print({
-        "language": out.language,
-        "duration_seconds": out.duration_seconds,
-        "text": out.text[:300],
-    })
+    print(
+        {
+            "language": out.language,
+            "duration_seconds": out.duration_seconds,
+            "text": out.text[:300],
+        }
+    )

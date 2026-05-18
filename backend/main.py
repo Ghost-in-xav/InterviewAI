@@ -11,6 +11,7 @@ Server pushes:
 - {"type": "report", "metrics": {...}, "report": {...}}
 - {"type": "error", "message": "..."}
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -40,7 +41,9 @@ from backend.vision.posture import PostureDetector
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s | %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s | %(message)s"
+)
 log = logging.getLogger("interviewiq")
 
 # Heavy singletons — instantiated once at startup.
@@ -71,9 +74,16 @@ class SessionState:
     frame_count: int = 0
     eye_looking_count: int = 0
     eye_face_detected_count: int = 0
-    posture_counts: dict[str, int] = field(default_factory=lambda: {
-        "good": 0, "slouched": 0, "tilted": 0, "no_person": 0, "off_center": 0, "too_much_angle": 0,
-    })
+    posture_counts: dict[str, int] = field(
+        default_factory=lambda: {
+            "good": 0,
+            "slouched": 0,
+            "tilted": 0,
+            "no_person": 0,
+            "off_center": 0,
+            "too_much_angle": 0,
+        }
+    )
     audio_chunks: list[bytes] = field(default_factory=list)
     face_baseline: FaceBaselineTracker = field(default_factory=FaceBaselineTracker)
     face_occlusion: FaceOcclusionDetector = field(default_factory=FaceOcclusionDetector)
@@ -86,7 +96,9 @@ class SessionState:
             self.eye_face_detected_count += 1
             if eye["looking"]:
                 self.eye_looking_count += 1
-        self.posture_counts[posture["status"]] = self.posture_counts.get(posture["status"], 0) + 1
+        self.posture_counts[posture["status"]] = (
+            self.posture_counts.get(posture["status"], 0) + 1
+        )
 
     def eye_contact_pct(self) -> float:
         if self.eye_face_detected_count == 0:
@@ -149,7 +161,9 @@ async def session_socket(ws: WebSocket) -> None:
                     await _finalize(ws, state)
                     break
                 else:
-                    await _send_json(ws, {"type": "error", "message": f"unknown type: {msg_type}"})
+                    await _send_json(
+                        ws, {"type": "error", "message": f"unknown type: {msg_type}"}
+                    )
 
             elif "bytes" in message and message["bytes"] is not None:
                 if pending_meta is None:
@@ -210,7 +224,9 @@ async def session_socket(ws: WebSocket) -> None:
                     avg_face = state.face_baseline.average()
                     off_center = False
                     if eye.get("face_detected") and eye.get("face_bbox") and avg_face:
-                        off_center = is_off_center(eye["face_bbox"], avg_face, threshold=0.10)
+                        off_center = is_off_center(
+                            eye["face_bbox"], avg_face, threshold=0.10
+                        )
                         if off_center:
                             posture["status"] = "off_center"
 
@@ -219,22 +235,28 @@ async def session_socket(ws: WebSocket) -> None:
                     posture["off_center"] = off_center
                     posture["too_much_angle"] = bool(face_lines.get("too_much_angle"))
 
-                    if posture.get("status") != "no_person" and posture["too_much_angle"]:
+                    if (
+                        posture.get("status") != "no_person"
+                        and posture["too_much_angle"]
+                    ):
                         posture["status"] = "too_much_angle"
                     state.add_frame_metrics(eye, posture)
 
-                    await _send_json(ws, {
-                        "type": "metrics",
-                        "eye_contact": eye,
-                        "posture": posture,
-                        "face_lines": face_lines,
-                        "face_mask": face_mask,
-                        "hands": hands,
-                        "motion": motion,
-                        "objects": objects,
-                        "frame_index": state.frame_count,
-                        "eye_contact_pct": state.eye_contact_pct(),
-                    })
+                    await _send_json(
+                        ws,
+                        {
+                            "type": "metrics",
+                            "eye_contact": eye,
+                            "posture": posture,
+                            "face_lines": face_lines,
+                            "face_mask": face_mask,
+                            "hands": hands,
+                            "motion": motion,
+                            "objects": objects,
+                            "frame_index": state.frame_count,
+                            "eye_contact_pct": state.eye_contact_pct(),
+                        },
+                    )
 
                 elif pending_meta["type"] == "audio_meta":
                     state.audio_chunks.append(message["bytes"])
@@ -261,14 +283,18 @@ async def _finalize(ws: WebSocket, state: SessionState) -> None:
 
     if audio_blob:
         try:
-            t = await asyncio.to_thread(get_transcriber().transcribe_bytes, audio_blob, ".webm")
+            t = await asyncio.to_thread(
+                get_transcriber().transcribe_bytes, audio_blob, ".webm"
+            )
             transcript_text = t.text
             transcript_lang = t.language
             if t.duration_seconds > 0:
                 duration = t.duration_seconds
         except Exception as e:  # noqa: BLE001
             log.error("Transcription failed: %s", e)
-            await _send_json(ws, {"type": "status", "message": f"Transcription failed: {e}"})
+            await _send_json(
+                ws, {"type": "status", "message": f"Transcription failed: {e}"}
+            )
 
     audio_metrics = analyze_audio(transcript_text, duration)
 

@@ -1,4 +1,5 @@
 """Heuristic face-occlusion detection using an upper-face baseline crop."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -163,7 +164,7 @@ class FaceOcclusionDetector:
         roi = frame_bgr[y:y2, x:x2]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         resized = cv2.resize(gray, self._patch_size, interpolation=cv2.INTER_AREA)
-        return (resized.astype(np.float32) / 255.0)
+        return resized.astype(np.float32) / 255.0
 
     def _upper_face_bbox(
         self,

@@ -4,6 +4,7 @@ Filler patterns cover French and English. Multi-word fillers ("du coup", "you
 know") are matched as phrases; single tokens are matched against word
 boundaries to avoid false positives like "like" inside "alike".
 """
+
 from __future__ import annotations
 
 import re

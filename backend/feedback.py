@@ -3,6 +3,7 @@
 One call per session, at the end. Uses claude-haiku-4-5 with prompt caching
 on the system prompt and a JSON schema to constrain the output.
 """
+
 from __future__ import annotations
 
 import json
@@ -55,14 +56,22 @@ REPORT_SCHEMA = {
             "description": "A single, very specific exercise the candidate can do before their next interview.",
         },
     },
-    "required": ["global_score", "headline", "strengths", "improvements", "actionable_tip"],
+    "required": [
+        "global_score",
+        "headline",
+        "strengths",
+        "improvements",
+        "actionable_tip",
+    ],
     "additionalProperties": False,
 }
 
 
 class FeedbackGenerator:
     def __init__(self, api_key: str | None = None) -> None:
-        self._client = anthropic.Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
+        self._client = anthropic.Anthropic(
+            api_key=api_key or os.environ.get("ANTHROPIC_API_KEY")
+        )
 
     def generate(self, metrics: dict) -> dict:
         user_payload = json.dumps(metrics, ensure_ascii=False, indent=2)
@@ -132,7 +141,11 @@ if __name__ == "__main__":
         "duration_seconds": 95,
     }
     try:
-        print(json.dumps(FeedbackGenerator().generate(sample), indent=2, ensure_ascii=False))
+        print(
+            json.dumps(
+                FeedbackGenerator().generate(sample), indent=2, ensure_ascii=False
+            )
+        )
     except Exception as e:  # noqa: BLE001 — CLI smoke test
         print(f"Live call failed ({e}); fallback:")
         print(json.dumps(_fallback_report(sample), indent=2, ensure_ascii=False))

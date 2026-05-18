@@ -1,4 +1,5 @@
 """Simple motion detection inside the face region."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

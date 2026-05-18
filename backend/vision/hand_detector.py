@@ -1,4 +1,5 @@
 """Hand detection using MediaPipe Hands to find hand bounding boxes."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -62,7 +63,9 @@ class HandDetector:
         self._hands.close()
 
 
-def hand_overlaps_face(face_bbox: dict | None, hand_bbox: dict, min_ratio: float = HAND_OVERLAP_MIN) -> bool:
+def hand_overlaps_face(
+    face_bbox: dict | None, hand_bbox: dict, min_ratio: float = HAND_OVERLAP_MIN
+) -> bool:
     if not face_bbox:
         return False
 

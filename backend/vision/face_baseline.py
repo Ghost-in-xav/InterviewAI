@@ -1,4 +1,5 @@
 """Track the average face box for the first N frames."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -40,7 +41,9 @@ class FaceBaselineTracker:
         }
 
 
-def is_off_center(current: dict | None, avg: dict | None, threshold: float = 0.30) -> bool:
+def is_off_center(
+    current: dict | None, avg: dict | None, threshold: float = 0.30
+) -> bool:
     if not current or not avg:
         return False
 

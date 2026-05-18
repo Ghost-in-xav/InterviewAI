@@ -4,6 +4,7 @@ A frame is considered "looking at camera" when both irises sit close enough
 to the center of their respective eye sockets on the horizontal axis AND the
 face is roughly frontal (small yaw).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,7 +16,7 @@ import numpy as np
 # FaceMesh landmark indices
 LEFT_IRIS = [468, 469, 470, 471, 472]
 RIGHT_IRIS = [473, 474, 475, 476, 477]
-LEFT_EYE_CORNERS = (33, 133)   # outer, inner
+LEFT_EYE_CORNERS = (33, 133)  # outer, inner
 RIGHT_EYE_CORNERS = (362, 263)  # inner, outer
 NOSE_TIP = 1
 LEFT_CHEEK = 234
@@ -25,7 +26,7 @@ RIGHT_CHEEK = 454
 @dataclass
 class EyeContactResult:
     looking: bool
-    score: float          # 0..1, how centered the gaze is
+    score: float  # 0..1, how centered the gaze is
     face_detected: bool
     face_bbox: dict | None = None
     eye_points: dict | None = None
@@ -126,10 +127,7 @@ class EyeContactDetector:
             ],
         }
 
-        face_landmarks = [
-            [round(clamp01(p.x), 4), round(clamp01(p.y), 4)]
-            for p in lm
-        ]
+        face_landmarks = [[round(clamp01(p.x), 4), round(clamp01(p.y), 4)] for p in lm]
 
         return EyeContactResult(
             looking=looking,

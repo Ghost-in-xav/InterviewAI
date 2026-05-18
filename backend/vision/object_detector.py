@@ -18,6 +18,7 @@ THRESHOLD – pixel intensity delta to consider "changed".  40 works well for
             typical webcam noise; raise it if you get too many false positives.
 FACE_MARGIN – how much to expand the face bbox for the search zone.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -25,11 +26,11 @@ from dataclasses import dataclass, field
 import cv2
 import numpy as np
 
-ALPHA = 0.07            # background learning rate
-DIFF_THRESHOLD = 40     # intensity units (0-255)
+ALPHA = 0.07  # background learning rate
+DIFF_THRESHOLD = 40  # intensity units (0-255)
 MIN_AREA_RATIO = 0.008  # contour must be ≥ 0.8 % of frame area
-FACE_MARGIN = 0.5       # expand face bbox by 50 % on every side
-WARMUP_FRAMES = 5       # don't detect until background is stable
+FACE_MARGIN = 0.5  # expand face bbox by 50 % on every side
+WARMUP_FRAMES = 5  # don't detect until background is stable
 
 
 def _boxes_overlap(a: dict, b: dict) -> bool:
@@ -76,9 +77,7 @@ class ObjectDetector:
         face_bbox: dict | None = None,
         hand_bboxes: list[dict] | None = None,
     ) -> ObjectDetectionResult:
-        gray = cv2.GaussianBlur(
-            cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY), (7, 7), 0
-        )
+        gray = cv2.GaussianBlur(cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY), (7, 7), 0)
         h, w = gray.shape[:2]
 
         # — update rolling background every frame —
@@ -86,9 +85,8 @@ class ObjectDetector:
             self._background = gray.astype(np.float32)
         else:
             self._background = (
-                (1.0 - self._alpha) * self._background
-                + self._alpha * gray.astype(np.float32)
-            )
+                1.0 - self._alpha
+            ) * self._background + self._alpha * gray.astype(np.float32)
         self._count += 1
 
         # Not enough frames yet for a stable background
@@ -115,7 +113,9 @@ class ObjectDetector:
         thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
         thresh = cv2.dilate(thresh, kernel, iterations=1)
 
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(
+            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         min_area = h * w * self._min_area_ratio
 
         bboxes: list[dict] = []

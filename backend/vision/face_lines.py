@@ -1,4 +1,5 @@
 """Face line extraction and inclination estimation using MediaPipe FaceMesh."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

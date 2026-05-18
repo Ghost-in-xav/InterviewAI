@@ -6,6 +6,7 @@ Heuristics:
   midpoint in normalized coordinates.
 - "good" otherwise.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,9 +22,9 @@ NOSE = 0
 
 @dataclass
 class PostureResult:
-    status: str               # "good" | "slouched" | "tilted" | "no_person"
+    status: str  # "good" | "slouched" | "tilted" | "no_person"
     shoulder_tilt_deg: float
-    head_offset: float        # normalized horizontal offset of nose from shoulder midpoint
+    head_offset: float  # normalized horizontal offset of nose from shoulder midpoint
     person_detected: bool
 
     def to_dict(self) -> dict:

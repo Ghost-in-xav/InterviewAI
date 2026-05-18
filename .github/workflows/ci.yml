@@ -156,14 +156,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Lint backend Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile.backend
           # DL3008 — apt pin versions: acceptable in project Dockerfiles
           # DL3013 — pip upgrade without pin: covered by requirements.txt pinning
           ignore: DL3008,DL3013
       - name: Lint frontend Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile.frontend
 

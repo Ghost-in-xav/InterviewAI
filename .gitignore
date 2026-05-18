@@ -1,0 +1,99 @@
+# ── Claude Code ───────────────────────────────────────────────────────────────
+CLAUDE.md
+.claude/
+memory/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+nosetests.xml
+*.cover
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# Linting / security reports
+bandit-*.json
+bandit-*.txt
+ruff-*.json
+
+# ── Node / npm ────────────────────────────────────────────────────────────────
+node_modules/
+.npm/
+.yarn/
+*.tgz
+
+# Vite build output
+frontend/dist/
+frontend/.vite/
+frontend/.vite-cache/
+
+# ── Environment & Secrets ──────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── IDEs & Editors ────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+
+# ── Security scan artifacts ───────────────────────────────────────────────────
+trivy-*.sarif
+trivy-*.json

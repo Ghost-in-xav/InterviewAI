@@ -1,0 +1,124 @@
+name: Security
+
+# Runs on every push to main + weekly scan to catch newly published CVEs.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 8 * * 1"  # Every Monday 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  security-events: write  # upload SARIF to GitHub Security tab
+  actions: read
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ── 1. CodeQL: SAST ───────────────────────────────────────────────────────
+  codeql:
+    name: "CodeQL · ${{ matrix.language }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ── 2. Trivy: Container Vulnerability Scan ────────────────────────────────
+  trivy-backend:
+    name: "Trivy · Backend Image"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build backend image for scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.backend
+          push: false
+          load: true
+          tags: interviewiq-backend:scan
+          cache-from: type=gha
+      - name: Scan with Trivy (SARIF → Security tab)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "interviewiq-backend:scan"
+          format: "sarif"
+          output: "trivy-backend.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-backend.sarif"
+          category: "trivy-backend"
+
+  # ── 3. Trivy: Filesystem Scan (deps + secrets in files) ───────────────────
+  trivy-fs:
+    name: "Trivy · Filesystem"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy on repo filesystem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-fs.sarif"
+          severity: "CRITICAL,HIGH"
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-fs.sarif"
+          category: "trivy-filesystem"
+
+  # ── 4. License Compliance ─────────────────────────────────────────────────
+  # Scheduled only — installing heavy deps (mediapipe, opencv) is slow.
+  license-check:
+    name: "License Compliance"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install all dependencies
+        run: pip install -r requirements.txt --quiet
+      - name: Install pip-licenses
+        run: pip install pip-licenses
+      - name: Report licenses
+        run: pip-licenses --format=markdown --order=license
+      - name: Block copyleft licenses (GPL / AGPL / SSPL)
+        run: |
+          COPYLEFT=$(pip-licenses --format=plain-vertical | grep -iE "\bGPL\b|\bAGPL\b|\bSSPL\b" || true)
+          if [ -n "$COPYLEFT" ]; then
+            echo "::error::Copyleft license detected in dependencies:"
+            echo "$COPYLEFT"
+            exit 1
+          fi
+          echo "No copyleft licenses found."
+      - name: Frontend license audit
+        working-directory: frontend
+        run: |
+          npm install --quiet
+          npx license-checker --onlyAllow "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;CC0-1.0;Unlicense"

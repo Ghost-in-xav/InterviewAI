@@ -1,0 +1,29 @@
+title = "InterviewIQ Gitleaks Config"
+
+[extend]
+# Inherit the full default ruleset and only add allowlist overrides.
+useDefault = true
+
+[[allowlist]]
+description = "Docker Compose variable pass-through (not a real secret value)"
+regexes = [
+  # ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY} in docker-compose.yml is a reference, not a secret
+  '''ANTHROPIC_API_KEY=\$\{ANTHROPIC_API_KEY\}''',
+]
+
+[[allowlist]]
+description = "Documentation and example files"
+paths = [
+  '''README\.md''',
+  '''DOCUMENTATION\.md''',
+  '''CLAUDE\.md''',
+  '''\.github/pull_request_template\.md''',
+]
+
+[[allowlist]]
+description = "Placeholder / example key patterns in comments or docs"
+regexes = [
+  '''sk-ant-placeholder''',
+  '''your[_-]api[_-]key[_-]here''',
+  '''<YOUR_API_KEY>''',
+]

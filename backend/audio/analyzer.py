@@ -7,7 +7,6 @@ boundaries to avoid false positives like "like" inside "alike".
 from __future__ import annotations
 
 import re
-from collections import Counter
 
 FILLERS = [
     # French

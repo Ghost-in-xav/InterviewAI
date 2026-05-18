@@ -87,7 +87,6 @@ class FaceOcclusionDetector:
         low_count = int(low_conf_count or 0)
 
         if self._baseline is None and self._count < self._max_samples:
-            masked_by_conf = False
             masked = masked_by_hand
             reason = "hand" if masked_by_hand else "ok"
             if not masked:

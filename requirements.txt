@@ -4,7 +4,7 @@ websockets==12.0
 python-multipart==0.0.27
 opencv-python-headless==4.10.0.84
 mediapipe==0.10.14
-numpy==1.26.4
+numpy==2.4.6
 faster-whisper==1.1.1
 requests==2.33.0
 httpx>=0.23.0,<0.28.0

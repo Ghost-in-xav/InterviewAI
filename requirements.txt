@@ -1,6 +1,6 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
-websockets==12.0
+websockets==16.0
 python-multipart==0.0.27
 opencv-python-headless==4.10.0.84
 mediapipe==0.10.14

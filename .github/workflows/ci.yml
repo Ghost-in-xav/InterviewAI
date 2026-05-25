@@ -90,7 +90,7 @@ jobs:
         run: bandit -r backend/ -lll --format json --output bandit-high.json
       - name: Upload Bandit report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bandit-report
           path: bandit-high.json
@@ -133,7 +133,7 @@ jobs:
         working-directory: frontend
         run: npm run build
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-dist
           path: frontend/dist/
